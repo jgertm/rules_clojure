@@ -1,0 +1,11 @@
+workspace(name = "rules_clojure_example")
+
+local_repository(
+    name = "rules_clojure",
+    path = "..",
+)
+
+load("@rules_clojure//clojure:repositories.bzl", "rules_clojure_dependencies")
+
+rules_clojure_dependencies()
+
