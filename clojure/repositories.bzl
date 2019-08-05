@@ -15,5 +15,11 @@ def rules_clojure_dependencies():
         name = "org_clojure_core_specs_alpha",
         artifact = "org.clojure:core.specs.alpha:0.2.44",
     )
-
-
+    native.maven_jar(
+        name = "org_clojure_tools_namespace",
+        artifact = "org.clojure:tools.namespace:0.3.1",
+    )
+    native.maven_jar(
+        name = "org_clojure_tools_reader",
+        artifact = "org.clojure:tools.reader:1.3.2",
+    )

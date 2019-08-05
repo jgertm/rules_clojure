@@ -9,8 +9,10 @@ def _impl(ctx):
             "outpath", ctx.bin_dir.path,
             "package", ctx.label.package,
             "name", ctx.label.name,
+            "file", ctx.file.src.path,
         ],
         inputs = [ctx.file.src]
+                 + ctx.files.deps
                  + ctx.files._clojure_jars
                  + ctx.files._jdk
                  + ctx.files._clojurec,
@@ -24,6 +26,10 @@ clojure_ns = rule(
             allow_single_file = [".clj"],
             mandatory = True,
         ),
+        "deps": attr.label_list(
+            allow_files = [".clj", ".class"],
+            default = [],
+        ),
         "_clojurec": attr.label(
             allow_single_file = True,
             default = "clojurec.clj",
@@ -32,6 +38,8 @@ clojure_ns = rule(
             Label("@org_clojure//jar"),
             Label("@org_clojure_spec_alpha//jar"),
             Label("@org_clojure_core_specs_alpha//jar"),
+            Label("@org_clojure_tools_namespace//jar"),
+            Label("@org_clojure_tools_reader//jar"),
         ]),
         "_jdk": attr.label(
             default = Label("//tools/defaults:jdk"),
