@@ -9,7 +9,9 @@
 
   (let [deps (-> file io/file read-file-ns-decl deps-from-ns-decl)
         ns (symbol (str/join "." [package name]))]
-    (binding [*compile-path* outpath]
+    (binding [*compile-path* outpath
+              *compiler-options* {:direct-linking true}
+              *compile-files* true]
       (run! require deps)
       (require ns)
       (compile ns))))
