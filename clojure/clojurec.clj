@@ -6,7 +6,6 @@
             [clojure.java.io :as io]))
 
 (defn -main [& {:strs [outpath package name file]}]
-
   (let [deps (-> file io/file read-file-ns-decl deps-from-ns-decl)
         ns (symbol (str/join "." [package name]))]
     (binding [*compile-path* outpath

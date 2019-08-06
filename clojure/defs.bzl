@@ -1,12 +1,16 @@
 def _impl(ctx):
+    class_dir = ctx.actions.declare_directory(ctx.label.name + "/classes")
+
     ctx.actions.run(
         mnemonic = "clojurec",
         executable = "java",
         arguments = [
-            "-cp", ":".join([".", ctx.bin_dir.path] + [jar.path for jar in ctx.files._clojure_jars]),
+            "-cp", ":".join([".", ctx.bin_dir.path]
+                            + [jar.path for jar in ctx.files._clojure_jars]
+                            + [dep.path for dep in ctx.files.deps]),
             "clojure.main",
             "-i", ctx.file._clojurec.path, "-m", "clojurec",
-            "outpath", ctx.bin_dir.path,
+            "outpath", class_dir.path,
             "package", ctx.label.package,
             "name", ctx.label.name,
             "file", ctx.file.src.path,
@@ -16,8 +20,14 @@ def _impl(ctx):
                  + ctx.files._clojure_jars
                  + ctx.files._jdk
                  + ctx.files._clojurec,
-        outputs = [ctx.outputs.classfile],
+        outputs = [class_dir],
     )
+
+    return [
+        DefaultInfo(
+            files = depset([class_dir]),
+        ),
+    ]
 
 clojure_ns = rule(
     implementation = _impl,
@@ -27,7 +37,7 @@ clojure_ns = rule(
             mandatory = True,
         ),
         "deps": attr.label_list(
-            allow_files = [".clj", ".class"],
+            allow_files = [".class"],
             default = [],
         ),
         "_clojurec": attr.label(
@@ -44,8 +54,5 @@ clojure_ns = rule(
         "_jdk": attr.label(
             default = Label("//tools/defaults:jdk"),
         ),
-    },
-    outputs = {
-        "classfile": "%{name}.class"
     },
 )
