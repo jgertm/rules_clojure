@@ -1,7 +1,8 @@
 (ns hello.core
   (:gen-class)
-  (:require [hello.aux :as aux]))
+  (:require [hello.library :as lib]))
 
 (defn -main
   [& args]
-  (println aux/greeting))
+  (println "hello")
+  (println lib/greeting))
