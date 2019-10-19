@@ -4,8 +4,6 @@
    [hello.library :as lib]
    [hello.macros :as m]))
 
-(println "compiling the core ns!!!")
-
 (defn -main
   [& args]
   (println "hello")

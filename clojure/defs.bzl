@@ -71,7 +71,7 @@ clojure_ns = rule(
     },
 )
 
-def merge_jars(ctx, input_jars, output_jar, main_class = "", progress_message = ""):
+def merge_jars(ctx, input_jars, output_jar, main_class = None, progress_message = None):
     args = ctx.actions.args()
     args.add_all(["--compression", "--normalize", "--sources"])
     args.add_all(input_jars)
@@ -89,7 +89,6 @@ def merge_jars(ctx, input_jars, output_jar, main_class = "", progress_message = 
     )
 
 def _clojure_binary_impl(ctx):
-    print("binary deps", ctx.attr.deps)
     output_jar = ctx.actions.declare_file(ctx.label.name)
     jars = depset(transitive = [d[JavaInfo].transitive_runtime_jars for d in ctx.attr.deps])
 
