@@ -6,15 +6,17 @@ def rules_clojure_dependencies():
     native.maven_jar(
         name = "org_clojure",
         artifact = "org.clojure:clojure:1.10.0",
-        
+        sha256 = "5014094a58c0576edf82cbd64de2536511b2f70e9c17ac78c1121524eabbae38",
     )
     native.maven_jar(
         name = "org_clojure_spec_alpha",
         artifact = "org.clojure:spec.alpha:0.2.176",
+        sha256 = "fc4e96ecff34ddd2ab7fd050e74ae1379342ee09daa6028da52024c5de836cc4",
     )
     native.maven_jar(
         name = "org_clojure_core_specs_alpha",
         artifact = "org.clojure:core.specs.alpha:0.2.44",
+	      sha256 = "3b1ec4d6f0e8e41bf76842709083beb3b56adf3c82f9a4f174c3da74774b381c",
     )
     native.maven_jar(
         name = "org_clojure_tools_namespace",
