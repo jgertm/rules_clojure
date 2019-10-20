@@ -1,6 +1,6 @@
 (ns clojurec
   (:require [clojure.pprint :refer [pprint]]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [clojure.tools.namespace.parse :refer [deps-from-ns-decl]]
             [clojure.tools.namespace.file :refer [read-file-ns-decl]]
             [clojure.java.io :as io])
@@ -29,10 +29,9 @@
           
           (.closeEntry jos))))))
 
-
 (defn -main [& {:strs [outpath package name file output-jar]}]
   (let [deps (-> file io/file read-file-ns-decl deps-from-ns-decl)
-        ns (symbol (string/join "." [package name]))]
+        ns (symbol (str/join "." [package name]))]
     (binding [*compile-path* outpath
               *compiler-options* {:direct-linking true}
               *compile-files* true]

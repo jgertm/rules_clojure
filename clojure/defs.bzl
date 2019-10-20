@@ -1,6 +1,3 @@
-# ; on windows, : on linux...
-_CLASSPATH_SEPARATOR = ";"
-
 def _impl(ctx):
     class_dir = ctx.actions.declare_directory(ctx.label.name + "/classes")
     jar = ctx.actions.declare_file(ctx.label.name + ".jar")
@@ -9,8 +6,8 @@ def _impl(ctx):
     args.add_joined(
         depset(direct = ctx.files._clojure_jars,
                transitive = [dep[JavaInfo].compile_jars for dep in ctx.attr.deps]),
-        join_with = _CLASSPATH_SEPARATOR,
-        format_joined = "%s{}.".format(_CLASSPATH_SEPARATOR),
+        join_with = ctx.configuration.host_path_separator,
+        format_joined = "%s{}.".format(ctx.configuration.host_path_separator),
     )
     args.add("clojure.main")
     args.add("-i", ctx.file._clojurec.path)
