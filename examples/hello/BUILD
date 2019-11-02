@@ -23,4 +23,20 @@ clojure_binary(
     main_class = "hello.core",
 )
 
+clojure_ns(
+    name = "nrepl-server",
+    deps = [
+        "@maven//:cider_cider_nrepl",
+        "@maven//:com_cemerick_pomegranate",
+    ],
+    src = "nrepl_server.clj",
+    
+)
+clojure_binary(
+    name = "repl",
+    deps = [":nrepl-server"],
+    main_class = "hello.nrepl_server",
+    repl = True,
+)
+
 
