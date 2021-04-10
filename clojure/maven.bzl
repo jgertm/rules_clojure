@@ -60,10 +60,3 @@ def clojure_maven_artifacts(maven):
     ]
     return v
         
-        
-
-def get_exclusions():
-    return [
-        "org.clojure:{}".format(name) for name in version_and_sha.keys()
-        
-    ]

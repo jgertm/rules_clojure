@@ -5,7 +5,6 @@ local_repository(
     path = "..",
 )
 
-load("@rules_clojure//clojure:maven.bzl", "clojure_maven_artifacts", "get_exclusions")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
@@ -21,7 +20,7 @@ http_archive(
 
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 load("@rules_jvm_external//:specs.bzl", "maven")
-
+load("@rules_clojure//clojure:maven.bzl", "clojure_maven_artifacts")
 maven_install(
     artifacts = [
         "cider:cider-nrepl:0.25.5",
