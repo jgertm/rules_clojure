@@ -1,26 +1,24 @@
-_clojure_common_attrs = {
-    "_clojure_jars": attr.label_list(default=[
-        Label("@org_clojure//jar"),
-        Label("@org_clojure_spec_alpha//jar"),
-        Label("@org_clojure_core_specs_alpha//jar"),
-        Label("@org_clojure_tools_namespace//jar"),
-        Label("@org_clojure_tools_reader//jar"),
-    ]),
-}
 
 def _impl(ctx):
+    toolchain = ctx.toolchains["@rules_clojure//:toolchain"]
+
+    deps = depset(
+        direct = toolchain.files.clojure_jars,
+        transitive = [dep[JavaInfo].transitive_runtime_jars for dep in ctx.attr.deps],
+    )
+
+
     class_dir = ctx.actions.declare_directory(ctx.label.name + "/classes")
     jar = ctx.actions.declare_file(ctx.label.name + ".jar")
     args = ctx.actions.args()
     args.add("-cp")
     args.add_joined(
-        depset(direct = ctx.files._clojure_jars,
-               transitive = [dep[JavaInfo].transitive_compile_time_jars for dep in ctx.attr.deps]),
+        deps, 
         join_with = ctx.configuration.host_path_separator,
         format_joined = "%s{}.".format(ctx.configuration.host_path_separator),
     )
     args.add("clojure.main")
-    args.add("-i", ctx.file._clojurec.path)
+    args.add("-i", toolchain.bin.clojurec.path)
     args.add("-m", "clojurec")
     args.add("outpath", class_dir.path)
     args.add("package", ctx.label.package)
@@ -30,12 +28,12 @@ def _impl(ctx):
 
     ctx.actions.run(
         mnemonic = "clojurec",
-        executable = "java",
+        executable = toolchain.java,
         arguments = [args],
-        inputs = [ctx.file.src]
-                 + ctx.files.deps
-                 + ctx.files._clojure_jars
-                 + ctx.files._clojurec,
+        inputs = depset(
+            direct = [ctx.file.src, toolchain.bin.clojurec],
+            transitive = [deps, toolchain.files.all]
+        ),
         outputs = [class_dir, jar],
     )
 
@@ -46,28 +44,22 @@ def _impl(ctx):
         JavaInfo(
             output_jar = jar,
             compile_jar = jar,
-            deps = [dep[JavaInfo] for dep in ctx.attr._clojure_jars + ctx.attr.deps],
+            deps = [dep[JavaInfo] for dep in ctx.attr.deps]
         ),
     ]
 
-_clojure_ns_attrs = {
-    "src": attr.label(
-        allow_single_file = [".clj"],
-        mandatory = True,
-    ),
-    "deps": attr.label_list(
-        # allow_files = [".class"],
-        default = [],
-    ),
-    "_clojurec": attr.label(
-        allow_single_file = True,
-        default = "clojurec.clj",
-    ),
-}
-
 clojure_ns = rule(
     implementation = _impl,
-    attrs = dict(_clojure_common_attrs.items() + _clojure_ns_attrs.items()),
+    attrs = {
+        "src": attr.label(
+            allow_single_file = [".clj"],
+            mandatory = True,
+        ),
+        "deps": attr.label_list(
+            default = [],
+        ),
+    },
+    toolchains = ["@rules_clojure//:toolchain"],
 )
 
 def merge_jars(ctx, input_jars, output_jar, main_class = None, progress_message = None):
@@ -88,9 +80,11 @@ def merge_jars(ctx, input_jars, output_jar, main_class = None, progress_message 
     )
 
 def _clojure_binary_jar_impl(ctx):
+    toolchain = ctx.toolchains["@rules_clojure//:toolchain"]
+
     output_jar = ctx.actions.declare_file(ctx.label.name)
     jars = depset(
-        direct = ctx.files._clojure_jars,
+        direct = toolchain.files.clojure_jars,
         transitive = [d[JavaInfo].transitive_runtime_jars for d in ctx.attr.deps],
     )
 
@@ -102,20 +96,19 @@ def _clojure_binary_jar_impl(ctx):
         )
     ]
 
-_clojure_binary_jar_attrs = {
-    "deps": attr.label_list(providers = [JavaInfo]),
-    "main_class": attr.string(),
-    "_singlejar": attr.label(
-        executable = True,
-        cfg = "host",
-        default = Label("@bazel_tools//tools/jdk:singlejar"),
-        allow_files = True,
-    ),
-}
-
 clojure_binary_jar = rule(
     implementation = _clojure_binary_jar_impl,
-    attrs = dict(_clojure_common_attrs.items() + _clojure_binary_jar_attrs.items()),
+    toolchains = ["@rules_clojure//:toolchain"],
+    attrs = {
+        "deps": attr.label_list(providers = [JavaInfo]),
+        "main_class": attr.string(),
+        "_singlejar": attr.label(
+            executable = True,
+            cfg = "host",
+            default = Label("@bazel_tools//tools/jdk:singlejar"),
+            allow_files = True,
+        ),
+    }
 )
 
 def _clojure_binary_runner_impl(ctx):

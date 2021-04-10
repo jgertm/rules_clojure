@@ -28,13 +28,27 @@ clojure_ns(
     deps = [
         "@maven//:cider_cider_nrepl",
         "@maven//:com_cemerick_pomegranate",
+        "@maven//:me_raynes_fs",
+        "@maven//:compliment_compliment",
     ],
     src = "nrepl_server.clj",
     
 )
+
+# Since the bare repl does not depend on project sources, you have to run it from the correct directory
+clojure_binary(
+    name = "bare_repl",
+    deps = [":nrepl-server"],
+    main_class = "hello.nrepl_server",
+    repl = True,
+)
+
 clojure_binary(
     name = "repl",
-    deps = [":nrepl-server"],
+    deps = [
+        ":nrepl-server",
+        ":core"
+    ],
     main_class = "hello.nrepl_server",
     repl = True,
 )

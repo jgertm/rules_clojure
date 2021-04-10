@@ -5,39 +5,37 @@ local_repository(
     path = "..",
 )
 
-load("@rules_clojure//clojure:repositories.bzl", "rules_clojure_dependencies")
-
-rules_clojure_dependencies()
+load("@rules_clojure//clojure:maven.bzl", "clojure_maven_artifacts", "get_exclusions")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-RULES_JVM_EXTERNAL_TAG = "2.8"
-RULES_JVM_EXTERNAL_SHA = "79c9850690d7614ecdb72d68394f994fef7534b292c4867ce5e7dec0aa7bdfad"
+RULES_JVM_EXTERNAL_TAG = "3.3"
+RULES_JVM_EXTERNAL_SHA = ""
 
 http_archive(
     name = "rules_jvm_external",
     strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_TAG,
-    sha256 = RULES_JVM_EXTERNAL_SHA,
+    # sha256 = RULES_JVM_EXTERNAL_SHA,
     url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
 )
 
 load("@rules_jvm_external//:defs.bzl", "maven_install")
+load("@rules_jvm_external//:specs.bzl", "maven")
 
 maven_install(
     artifacts = [
-        "cider:cider-nrepl:0.22.4",
+        "cider:cider-nrepl:0.25.5",
         "com.cemerick:pomegranate:1.1.0",
-    ],
-    excluded_artifacts = [
-        "org.clojure:clojure",
-        "org.clojure:spec.alpha",
-        "org.clojure:core.specs.alpha",
-        "org.clojure:tools.namespace",
-        "org.clojure:tools.reader",
-    ],
+        "compliment:compliment:0.3.11",
+        "me.raynes:fs:1.4.6"
+    ] + clojure_maven_artifacts(maven),
     repositories = [
-        # Private repositories are supported through HTTP Basic auth
         "https://repo.clojars.org",
         "https://repo1.maven.org/maven2",
     ],
+    # excluded_artifacts = get_exclusions()
+
+        
 )
+
+register_toolchains("//:clojure_toolchain")
